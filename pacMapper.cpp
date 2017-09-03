@@ -14,7 +14,7 @@
 #include "index_extend.h"
 
 //#include "pmpfinder.h"
-#include "pacmapper.h"
+#include "base.h"
 
 using namespace seqan; 
 
