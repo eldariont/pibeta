@@ -15,11 +15,11 @@ set (SEQAN_APP_VERSION "1.1.1")
 # ----------------------------------------------------------------------------
 # Dependencies
 # ----------------------------------------------------------------------------
-#find_package(CXX11 REQUIRED)
-#if (NOT CXX11_FOUND)
-#    message (STATUS " C++11 compiler needed to build pacMapper")
-#    return ()
-#endif (NOT CXX11_FOUND)
+find_package(CXX11 REQUIRED)
+if (NOT CXX11_FOUND)
+    message (STATUS " C++11 compiler needed to build pacMapper")
+    return ()
+endif (NOT CXX11_FOUND)
 
 # Search SeqAn and select dependencies.
 set (SEQAN_FIND_DEPENDENCIES NONE)
@@ -41,7 +41,7 @@ add_definitions (-DSEQAN_REVISION="${SEQAN_REVISION}")
 add_definitions (-DSEQAN_DATE="${SEQAN_DATE}")
 
 # Update the list of file names below if you add source files to your application.
-add_executable (pacMapper pacMapper.cpp pacmapper.h index_pm.h shape_pm.h)
+add_executable (pacMapper pacMapper.cpp mapper.h base.h index_extend.h shape_extend.h)
 
 # Add dependencies found by find_package (SeqAn).
 target_link_libraries (pacMapper ${SEQAN_LIBRARIES})
@@ -95,3 +95,4 @@ if (SEQAN_BUILD_SYSTEM STREQUAL "APP:pacMapper")
 
   seqan_configure_cpack_app (pacMapper "pacMapper")
 endif (SEQAN_BUILD_SYSTEM STREQUAL "APP:pacMapper")
+

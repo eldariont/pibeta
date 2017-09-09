@@ -1,5 +1,5 @@
 // ==========================================================================
-//                 SeqAn - The Library for Sequence Analysis
+//                           Mapping SMRT reads 
 // ==========================================================================
 // Copyright (c) 2006-2015, Knut Reinert, FU Berlin
 // All rights reserved.
@@ -28,6 +28,8 @@
 // OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 //
+// ==========================================================================
+// Autor: cxpan <chenxu.pan@fu-berlin.de>
 // ==========================================================================
 
 #ifndef SEQAN_HEADER_SHAPE_PM_H
@@ -311,6 +313,7 @@ hashNext(Shape<TValue, Minimizer<TSPAN, TWEIGHT, TSpec> > &me, TIter const &it)
         me.hValue=((me.hValue & hash_key)<<2)+ordValue((TValue)*(it + ((TSize)me.span - 1)));
         me.XValue = hash_key3;
                 
+        //std::cout << "hash_key3" << hash_key3 << std::endl;
         for (unsigned k = 64-span; k <= 64 - weight; k+=2)
         {
             v1 = me.hValue << k >> (64-weight);
