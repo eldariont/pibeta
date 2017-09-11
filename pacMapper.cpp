@@ -32,21 +32,7 @@
 // Author: cxpan <chenxu.pan@fu-berlin.de>
 // ==========================================================================
 
-#include <seqan/seq_io.h>
-#include <seqan/stream.h>
-#include <seqan/index.h>
-#include <seqan/store.h>
-#include <iostream>
-#include <fstream>
-#include <math.h>
-#include <seqan/basic.h>
-#include <bitset>
-#include <climits>
-#include <seqan/arg_parse.h>
-
-
-#include "base.h"
-#include "pmpfinder.h"
+#include "mapper.h"
 
 using namespace seqan; 
 
@@ -110,81 +96,6 @@ using namespace seqan;
         return seqan::ArgumentParser::PARSE_OK;
 
     }
-
-/*
-    typedef Iterator<String<Dna5> >::Type TIter;
-    typedef Shape<Dna5, Minimizer<30> > TShape;
-    typedef Shape<Dna5, UngappedShape<30> > TShape_u;
-
-
-typedef Index<StringSet<Dna5String>, IndexQGram<Minimizer<30>, OpenAddressing > > TIndex;
-typedef Index<StringSet<Dna5String>, IndexQGram<UngappedShape<30>, OpenAddressing > > TIndex_u;
-
-int uTest3(StringSet<Dna5String> & reads, StringSet<Dna5String> & genome)
-{
-    TShape_u t_shape;
-    TIndex_u index(genome);
-    unsigned kmerLength = t_shape.span;
-    uint64_t sum=0, count=0, p = 0;
-    double time = sysTime();
-    std::cout << "uTest3():\n";
-    std::cout << "    fullDirLength " << _fullDirLength(index) << std::endl; 
-
-    indexCreate(index, FibreSADir());
-    std::cout << "    getSA start sysTime(): " << sysTime() - time<< std::endl;
-    for(unsigned k = 0; k < length(reads); k++)
-    {
-        TIter it = begin(reads[k]);
-        hashInit(t_shape, it);
-        for (uint64_t j = 0; j < length(reads[k]) - kmerLength + 1; j++)
-        //for (uint64_t j = 0; j < 100; j++)
-        {
-            hashNext(t_shape, it + j);
-            p = getBucket(index.bucketMap, t_shape.hValue);
-            for (uint64_t k = index.dir[p]; k < index.dir[p+1]; k++)
-                sum ^= index.sa[k].i2;
-        }
-    }
-    std::cout << "    sum = " << sum << " count = " << count << std::endl;
-    std::cout << "    getSA end sysTime(): "<< sysTime() - time<< std::endl;
-    std::cout << "    End uTest()" << std::endl;
-    return 0;
-}
-
-
-int mTest3(StringSet<Dna5String> & reads, StringSet<Dna5String> & genome)
-{
-    TShape shape, shape1;
-    TIndex index(genome);
-    uint64_t sum = 0, p = 0;
-    double time = sysTime();
-    std::cout << "mTest3(): " << std::endl;
-    _createQGramIndex(index);
-    std::cout << "    getDir start sysTime(): " << sysTime() - time << std::endl;
-    std::cout << "    length Dir = " << length(index.dir) << std::endl;
-    std::cout << "    length Text = " << lengthSum(indexText(index)) << std::endl;
-    std::cout << "    length SA = " << length(index.sa) << std::endl;
-    for(uint64_t k = 0; k < length(reads); k++)
-    {
-        TIter it = begin(reads[k]);
-        hashInit(shape, it);
-        for (uint64_t j = 0; j < length(reads[k]) - shape.span + 1; j++)
-        {
-            hashNext(shape, it + j);
-            p = getDir(index, shape);
-            for (uint64_t n = _getBodyCounth(index.dir[p]); n < _getBodyCounth(index.dir[p + 1]); n++)
-            {
-                sum ^= _getSA_i2(index.sa[n]);
-            }
-        }
-    }
-    std::cout << "    sum = " << sum << std::endl;
-    std::cout << "    getDir end sysTime(): " << sysTime() - time << std::endl;
-    std::cout << "    End mTest1()" << std::endl;
-
-    return 0;
-}
-*/
 
 int main(int argc, char const ** argv)
 {

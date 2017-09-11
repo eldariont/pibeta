@@ -1,22 +1,38 @@
 # qbdnb
+ 
+Tools for mapping reads efficiently. 
 
-This is the reprository provoiding the prototype of mapping smrt sequencing reads. 
+## Usage
+
+* Use as standalone app please clone the master branch to SeqAn2 master branch/apps
+
+```bash
+  $ CMake -DCMAKE_BUILD_TYPE=Release [directory to SeqAn]
+  $ make pacMapper
+```
+
+* Use as library please include the mapper.h in the source.
+
+## Interface 
+Major classes are encapsulated as the `class Mapper` in mapper.h as part of the pipline. 
+
+- Filter
+  - Using `Mapper::hits()` to return the StringSet of best `hits` for each read 
+  - Using `Mapper::getHitX(hit)` and `Mapper::getHitY(hit)` to return the coordinates of hit
+- Band estimation
+  - Using `Mapper::cords()` returns the StringSet of coordinates `cords` of slidings windows for each read.
+  - Using `Mapper::getCordX(cord)` and `Mapper::getCordY(cord)` to return the coordinates of sliding window
+- map
+  - To add new module to the pipeline please provide interfaces in th `Mapper` class and call them in the `map()` function 
+  or I will encapsulated them at last.
+  
+## Notice
+
+The current version is to complete the interface and the pipeline. While the benchmark should be conducted later after all the things are accomplished.  
 
 
-To use it please note "include mapper.h" in the source file. 
-and call map(genome, reads) in the pacmapper.h to return the regions
-It takes StringSet\<Dna5\> as input, and return Pair<uint64_t, uint64_t> as the begin and end position in the genome 
 
-# notice
 
-The result is supposed to output
-
-readsid, genomeid, length(reads), length(genome) begin, end, strand, score
-
-1.For convenience it currently output begin and end .
-please take the region: [begin, end] ± 15% * readlength in the genome for verification.
-
-2.Revese complement strand dna is calculated during the process but the output section for them is not included yet. So please use forward strand data set for test.
 
 
 
