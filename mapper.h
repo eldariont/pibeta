@@ -70,15 +70,19 @@ public:
     Res & result() {return res;}
     Index & index() {return qIndex;}
     HitSet & hits() {return res.hits;}             //returns hit set
+    Pair<HitType, HitType> getAliX(unsigned) const;
     HitType getHitX (HitType const &) const;     //returns coordinates x,y of the hits 
     HitType getHitY (HitType const &) const;     //type uint64_t
     CordSet & cords() {return cordSet;}            //returns cord set 
     CordType getCordX(CordType const &) const;   // returns coordinates x,y of the vertex of sliding window
     CordType getCordY(CordType const &) const;   // type uint64_t 
+    
 
     void printHits();
+    void printBestHitsStart();
     void printResult();    
     void printParm();
+    void printCords();
     int createIndex();
      
     //Mapper(Options const & options)
@@ -102,6 +106,19 @@ int Mapper<TDna, TSpec>::createIndex()
     std::cerr << "Creating index \n";
     _createQGramIndex(qIndex);
     return 0;
+}
+
+
+template <typename TDna, typename TSpec>
+Pair<typename Mapper<TDna,TSpec>::HitType, typename Mapper<TDna, TSpec>::HitType>
+Mapper<TDna, TSpec>::getAliX(unsigned k) const
+{
+    typedef typename Mapper<TDna,TSpec>::HitType HitType;
+    typedef Pair<HitType, HitType> Pair;
+    if (empty(res.hits[k]))
+        return Pair::Pair(~(HitType)0, ~(HitType)0);
+    else
+        return Pair::Pair(_getSA_i1(res.hits[k][0]), _getSA_i2(res.hits[k][0])) << std::endl;
 }
 
 template <typename TDna, typename TSpec>
@@ -135,13 +152,26 @@ Mapper<TDna, TSpec>::getCordY(typename Mapper<TDna, TSpec>::CordType const & cor
 template <typename TDna, typename TSpec>
 void Mapper<TDna, TSpec>::printHits()
 {
-    std::cout << "Hits: " << lengthSum(res.hits) << " in sum " << std::endl;
+    unsigned j = 0;
+    std::cout << "printHits: " << lengthSum(res.hits) << " in sum " << std::endl;
     for (auto && hitStr : res.hits)
     {
+        std::cout << j++ << std::endl;
         for (auto && hit : hitStr)
-            std::cout << getHitX(hit) << " " << getHiY(hit) << ", ";
+            std::cout << getHitX(hit) << " " << getHitY(hit) << std::endl;
         std::cout << std::endl;
     }
+}
+
+template <typename TDna, typename TSpec>
+void Mapper<TDna, TSpec>::printBestHitsStart()
+{
+    unsigned k = 0;
+    for (auto && hitStr : res.hits)
+        if (empty(hitStr))
+            std::cout << std::endl;
+        else
+            std::cout << k++ << " " << getHitX(hitStr[0]) - getHitY(hitStr[0]) << std::endl;
 }
 
 template <typename TDna, typename TSpec>
@@ -155,6 +185,16 @@ void Mapper<TDna, TSpec>::printParm()
 }
 
 template <typename TDna, typename TSpec>
+void Mapper<TDna, TSpec>::printCords()
+{
+    for (unsigned k = 0; k < length(cordSet); k++)
+    {
+        std::cout << k << " length " << length(reads()[k]) << std::endl;
+        _DefaultCord.print(cordSet[k]);
+    }
+}
+
+template <typename TDna, typename TSpec>
 void map(Mapper<TDna, TSpec> mapper)
 {
     std::cerr << "Encapsulated version " << std::endl;
@@ -163,13 +203,17 @@ void map(Mapper<TDna, TSpec> mapper)
     resize(mapper.hits(), length(mapper.reads()));
     resize(mapper.cords(), length(mapper.reads()));
     mnMap<TDna, TSpec>(mapper.index(), mapper.reads(), _DefaultMapParm, mapper.hits());
-    path(mapper.hits(), mapper.reads(), mapper.genomes(), mapper.cords());
+    //path(mapper.hits(), mapper.reads(), mapper.genomes(), mapper.cords());
+    //checkPath(mapper.cords(), mapper.reads());
 
     //mapper.printParm();
     //mapper.printHits();
-    //_DefaultCord.print(mapper.cords);
+    //_DefaultCord.print(mapper.cords());
+    //mapper.printCords();
     //mapper.printResult();
+    mapper.printBestHitsStart();
     std::cerr << "Time of mapping in sum [s] " << sysTime() - time << std::endl;
+    std::cerr << (length(mapper.index().dir) + length(mapper.index().sa) >> 27) << "GB" << std::endl;
 }
 
 

@@ -32,6 +32,7 @@
 // Author: cxpan <chenxu.pan@fu-berlin.de>
 // ==========================================================================
 
+#include <csignal>
 #include "mapper.h"
 
 using namespace seqan; 
@@ -109,6 +110,7 @@ int main(int argc, char const ** argv)
     Mapper<> mapper(options);
     //options.print(); 
     map(mapper);
+    std::cerr << mapper.hits()[0][1] << std::endl;
     std::cerr << "total time " << sysTime() - t << std::endl;
     
     //mTest3(mapper.reads(), mapper.genomes());   
