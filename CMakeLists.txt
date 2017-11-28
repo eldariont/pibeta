@@ -7,23 +7,34 @@
 # ===========================================================================
 
 cmake_minimum_required (VERSION 2.8.2)
-project (seqan_apps_pacMapper)
+project (seqan_apps_pacMapper CXX )
 message (STATUS "Configuring apps/pacMapper")
 
 set (SEQAN_APP_VERSION "1.1.1")
 
 # ----------------------------------------------------------------------------
+# Project settings
+# ----------------------------------------------------------------------------
+
+set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/seqan/util/cmake")
+message (STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
+
+set (SEQAN_INCLUDE_PATH "${CMAKE_SOURCE_DIR}/seqan/include")
+message (STATUS "SEQAN_INCLUDE_PATH: ${SEQAN_INCLUDE_PATH}")
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+# ----------------------------------------------------------------------------
 # Dependencies
 # ----------------------------------------------------------------------------
-find_package(CXX11 REQUIRED)
-if (NOT CXX11_FOUND)
-    message (STATUS " C++11 compiler needed to build pacMapper")
-    return ()
-endif (NOT CXX11_FOUND)
 
-# Search SeqAn and select dependencies.
-set (SEQAN_FIND_DEPENDENCIES NONE)
-find_package (SeqAn REQUIRED)
+find_package(SeqAn REQUIRED)
+
+# # Search SeqAn and select dependencies.
+# set (SEQAN_FIND_DEPENDENCIES NONE)
+# find_package (SeqAn REQUIRED)
 
 # ----------------------------------------------------------------------------
 # Build Setup
@@ -55,25 +66,25 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SEQAN_CXX_FLAGS} ${CXX11_CXX_FLAGS}")
 # Installation
 # ----------------------------------------------------------------------------
 
-# Set variables for installing, depending on the selected build type.
-if (NOT SEQAN_PREFIX_SHARE_DOC)
-  seqan_setup_install_vars (pacMapper)
-  seqan_setup_install_vars (testCasePacMapper)
-endif (NOT SEQAN_PREFIX_SHARE_DOC)
-
-# Install pacMapper in ${PREFIX}/bin directory
-install (TARGETS pacMapper
-         DESTINATION bin)
-
-install (TARGETS testCasePacMapper
-         DESTINATION bin)
-# Install non-binary files for the package to "." for app builds and
-# ${PREFIX}/share/doc/pacMapper
-install (FILES LICENSE
-               README
-         DESTINATION ${SEQAN_PREFIX_SHARE_DOC})
-install (FILES example/small.fasta
-         DESTINATION ${SEQAN_PREFIX_SHARE_DOC}/example)
+# # Set variables for installing, depending on the selected build type.
+# if (NOT SEQAN_PREFIX_SHARE_DOC)
+#   seqan_setup_install_vars (pacMapper)
+#   seqan_setup_install_vars (testCasePacMapper)
+# endif (NOT SEQAN_PREFIX_SHARE_DOC)
+#
+# # Install pacMapper in ${PREFIX}/bin directory
+# install (TARGETS pacMapper
+#          DESTINATION bin)
+#
+# install (TARGETS testCasePacMapper
+#          DESTINATION bin)
+# # Install non-binary files for the package to "." for app builds and
+# # ${PREFIX}/share/doc/pacMapper
+# install (FILES LICENSE
+#                README
+#          DESTINATION ${SEQAN_PREFIX_SHARE_DOC})
+# install (FILES example/small.fasta
+#          DESTINATION ${SEQAN_PREFIX_SHARE_DOC}/example)
 
 # ----------------------------------------------------------------------------
 # App Test
@@ -101,6 +112,7 @@ if (SEQAN_BUILD_SYSTEM STREQUAL "APP:pacMapper")
 
   seqan_configure_cpack_app (pacMapper "pacMapper")
 endif (SEQAN_BUILD_SYSTEM STREQUAL "APP:pacMapper")
+<<<<<<< HEAD
 
 if (SEQAN_BUILD_SYSTEM STREQUAL "APP:testCasePacMapper")
   set (CPACK_PACKAGE_NAME "testCasePacMapper")
@@ -111,3 +123,5 @@ if (SEQAN_BUILD_SYSTEM STREQUAL "APP:testCasePacMapper")
   seqan_configure_cpack_app (pacMapper "testCasePacMapper")
 endif (SEQAN_BUILD_SYSTEM STREQUAL "APP:testCasePacMapper")
 
+=======
+>>>>>>> master
