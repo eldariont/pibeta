@@ -112,7 +112,6 @@ if (SEQAN_BUILD_SYSTEM STREQUAL "APP:pacMapper")
 
   seqan_configure_cpack_app (pacMapper "pacMapper")
 endif (SEQAN_BUILD_SYSTEM STREQUAL "APP:pacMapper")
-<<<<<<< HEAD
 
 if (SEQAN_BUILD_SYSTEM STREQUAL "APP:testCasePacMapper")
   set (CPACK_PACKAGE_NAME "testCasePacMapper")
@@ -122,6 +121,3 @@ if (SEQAN_BUILD_SYSTEM STREQUAL "APP:testCasePacMapper")
 
   seqan_configure_cpack_app (pacMapper "testCasePacMapper")
 endif (SEQAN_BUILD_SYSTEM STREQUAL "APP:testCasePacMapper")
-
-=======
->>>>>>> master
