@@ -110,7 +110,48 @@ int main(int argc, char const ** argv)
         return res == seqan::ArgumentParser::PARSE_ERROR;
     double t=sysTime();
     Mapper<> mapper(options);
-    map(mapper);
+
+    double time = sysTime();
+    mapper.createIndex();
+    std::cerr << "done1\n";
+    resize(mapper.hits(), length(mapper.reads()));
+    resize(mapper.cords(), length(mapper.reads()));
+    std::cerr << "done2\n";
+
+    rawMapAll<typename MapperBase<>::DefaultAlphabet, typename MapperBase<>::DefaultShape>(mapper.index(), mapper.reads(), mapper.genomes(),
+                         _DefaultMapParm, mapper.hits(), mapper.cords());
+    auto read_map_coordinates = mapper.coordsAsVector();
+
+    int grid_size = 1000;
+    for (int read = 0; read < length(read_map_coordinates); ++read)
+    {
+        for (int mapping = 0; mapping < length(read_map_coordinates[read]); ++mapping)
+        {
+            std::vector<std::pair<uint32_t, uint32_t>> grid_blocks;
+            uint32_t genome_start = std::get<2>(read_map_coordinates[read][mapping][0]);
+            uint32_t read_start = std::get<0>(read_map_coordinates[read][mapping][0]);
+            for (auto && tup : read_map_coordinates[read][mapping])
+            {
+                auto x_pos = std::get<2>(tup) - genome_start;
+                auto y_pos = std::get<0>(tup) - read_start;
+                grid_blocks.push_back(std::make_pair(x_pos / grid_size, y_pos / grid_size));
+                grid_blocks.push_back(std::make_pair((x_pos + 192) / grid_size, y_pos / grid_size));
+                grid_blocks.push_back(std::make_pair(x_pos / grid_size, (y_pos + 192) / grid_size));
+                grid_blocks.push_back(std::make_pair((x_pos + 192) / grid_size, (y_pos + 192) / grid_size));
+                // std::cerr << read << "\t" << mapping << "\t" << std::get<0>(tup) << "\t" << std::get<1>(tup) << "\t" << std::get<2>(tup) << std::endl; 
+            }
+            std::stable_sort(grid_blocks.begin(), grid_blocks.end());
+            grid_blocks.erase(std::unique(grid_blocks.begin(), grid_blocks.end()), grid_blocks.end());
+            std::cerr << "Grid blocks of read " << read << " and mapping " << mapping << std::endl;
+            for (auto p : grid_blocks)
+            {
+                std::cerr << std::get<0>(p) << "\t" << std::get<1>(p) << std::endl;
+            }
+        }
+    }
+
+    
+    std::cerr << "Time in sum[s] " << sysTime() - time << std::endl;
 
     return 0;
 }
