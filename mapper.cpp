@@ -34,8 +34,9 @@
 
 #include <csignal>
 #include "mapper.h"
+#include "dp_verifier.h"
 
-using namespace seqan; 
+using namespace seqan;
 
 
     seqan::ArgumentParser::ParseResult
@@ -123,34 +124,48 @@ int main(int argc, char const ** argv)
     auto read_map_coordinates = mapper.coordsAsVector();
 
     int grid_size = 1000;
+
+    Score<int, Simple> scoreScheme(4, -5, -1, -11);
+
     for (int read = 0; read < length(read_map_coordinates); ++read)
     {
+        if (read == 182)
+        {
+        std::cout << "\n\n#### Read " << read << "\n";
         for (int mapping = 0; mapping < length(read_map_coordinates[read]); ++mapping)
         {
-            std::vector<std::pair<uint32_t, uint32_t>> grid_blocks;
-            uint32_t genome_start = std::get<2>(read_map_coordinates[read][mapping][0]);
-            uint32_t read_start = std::get<0>(read_map_coordinates[read][mapping][0]);
-            for (auto && tup : read_map_coordinates[read][mapping])
+            std::cout << "# Mapping " << mapping << "\n";
+            PacBioBandGenerator bandGenerator{};
+            computeGrid(bandGenerator, read_map_coordinates[read][mapping], grid_size);
+
+            // We got the blocks here.
+            // Now submit an alignment with the block generation as function?
+            DPSettings<decltype(scoreScheme), DPVerifierTraits> dpSettings{scoreScheme};
+            dpSettings.bandScheme = bandGenerator;
+
+            for (size_t rowIdx = 0; rowIdx < bandGenerator._colOffset; ++rowIdx)
             {
-                auto x_pos = std::get<2>(tup) - genome_start;
-                auto y_pos = std::get<0>(tup) - read_start;
-                grid_blocks.push_back(std::make_pair(x_pos / grid_size, y_pos / grid_size));
-                grid_blocks.push_back(std::make_pair((x_pos + 192) / grid_size, y_pos / grid_size));
-                grid_blocks.push_back(std::make_pair(x_pos / grid_size, (y_pos + 192) / grid_size));
-                grid_blocks.push_back(std::make_pair((x_pos + 192) / grid_size, (y_pos + 192) / grid_size));
-                // std::cerr << read << "\t" << mapping << "\t" << std::get<0>(tup) << "\t" << std::get<1>(tup) << "\t" << std::get<2>(tup) << std::endl; 
+                unsigned isDisconnected = 0;
+                bool lastVal = false;
+                for (size_t colIdx = 0;
+                     colIdx < (length(bandGenerator._gridBlocks)/bandGenerator._colOffset);
+                     ++colIdx)
+                {
+                    bool val = bandGenerator._gridBlocks[colIdx * bandGenerator._colOffset + rowIdx];
+                    if (val != lastVal)
+                        ++isDisconnected;
+                    std::cout << std::boolalpha << val << "\t\t";
+                    lastVal = val;
+                }
+//                    if (isDisconnected > 2)
+//                        std::cout << "XXXXXX";
+                std::cout << "\n";
             }
-            std::stable_sort(grid_blocks.begin(), grid_blocks.end());
-            grid_blocks.erase(std::unique(grid_blocks.begin(), grid_blocks.end()), grid_blocks.end());
-            std::cerr << "Grid blocks of read " << read << " and mapping " << mapping << std::endl;
-            for (auto p : grid_blocks)
-            {
-                std::cerr << std::get<0>(p) << "\t" << std::get<1>(p) << std::endl;
-            }
+        }
         }
     }
 
-    
+
     std::cerr << "Time in sum[s] " << sysTime() - time << std::endl;
 
     return 0;

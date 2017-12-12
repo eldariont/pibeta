@@ -35,23 +35,28 @@
 #ifndef SEQAN_HEADER_BASE_H
 #define SEQAN_HEADER_BASE_H
 
+// STL dependencies
+#include <iostream>
+#include <fstream>
+#include <math.h>
+#include <bitset>
+#include <climits>
+#include <thread>
+#include <chrono>
+#include <atomic>
+#include <iomanip>
+#include <functional>   // for std::ref()
+
+// SeqAn dependencies
 #include <seqan/seq_io.h>
 #include <seqan/stream.h>
 #include <seqan/index.h>
 #include <seqan/store.h>
-#include <iostream>
-#include <fstream>
-#include <math.h>
 #include <seqan/basic.h>
-#include <bitset>
-#include <climits>
 #include <seqan/arg_parse.h>
-#include <thread>
-#include <chrono>
-#include <atomic>   
-#include <iomanip>
-#include <functional>   // for std::ref()
+#include <seqan/align_parallel.h>
 
+// local header
 #include "shape_extend.h"
 #include "index_extend.h"
 
