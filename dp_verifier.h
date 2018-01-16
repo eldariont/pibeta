@@ -62,7 +62,8 @@ template <typename TSeqH, typename TSeqV>
 void computeGrid(DPStaticBandGenerator & bandGenerator,
                  TSeqH const & seqH,
                  TSeqV const & seqV,
-                 uint32_t const grid_size)
+                 uint32_t const grid_size,
+                 bool const strand)
 {
     //TODO(rrahn): Write me!
     SEQAN_ASSERT_FAIL("Implement me!");
@@ -76,10 +77,10 @@ template <typename TCoordinates>
 inline void
 computeGrid(PacBioBandGenerator & bandGenerator,
             TCoordinates const & readMappingCoordinates,
-            uint32_t const grid_size)
+            uint32_t const grid_size,
+            bool const strand)
 {
-    //TODO(rrahn): Fix for backward orientation.
-    // We will get some errors here if the orientation is backward as the given position coordinates decrease.
+    std::cerr << "Strand: " << std::boolalpha << strand << std::endl;
     std::vector<std::pair<uint32_t, uint32_t>> grid;
     uint32_t genome_start = std::get<2>(readMappingCoordinates[0]);
     uint32_t read_start = std::get<0>(readMappingCoordinates[0]);

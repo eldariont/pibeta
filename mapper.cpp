@@ -130,11 +130,14 @@ int main(int argc, char const ** argv)
     for (int read = 0; read < length(read_map_coordinates); ++read)
     {
         std::cout << "\n\n#### Read " << read << "\n";
-        for (int mapping = 0; mapping < length(read_map_coordinates[read]); ++mapping)
+
+        bool strand = read_map_coordinates[read].first;
+        for (int mapping = 0; mapping < length(read_map_coordinates[read].second); ++mapping)
         {
             std::cout << "# Mapping " << mapping << "\n";
+            
             PacBioBandGenerator bandGenerator{};
-            computeGrid(bandGenerator, read_map_coordinates[read][mapping], grid_size);
+            computeGrid(bandGenerator, read_map_coordinates[read].second[mapping], grid_size, strand);
 
             // We got the blocks here.
             // Now submit an alignment with the block generation as function?

@@ -83,7 +83,7 @@ public:
     void printParm();
     void printCords(std::ostream & );
     void printCords();
-    std::vector<std::vector<std::vector<std::tuple<uint32_t, uint32_t, uint32_t>>>> coordsAsVector();
+    std::vector<std::pair<bool, std::vector<std::vector<std::tuple<uint32_t, uint32_t, uint32_t>>>>> coordsAsVector();
     void printCordsAll();
     int createIndex();
     unsigned sens();
@@ -249,42 +249,39 @@ void Mapper<TDna, TSpec>::printCordsAll()
 
 
 template <typename TDna, typename TSpec>
-std::vector<std::vector<std::vector<std::tuple<uint32_t, uint32_t, uint32_t>>>> Mapper<TDna, TSpec>::coordsAsVector()
+std::vector<std::pair<bool, std::vector<std::vector<std::tuple<uint32_t, uint32_t, uint32_t>>>>> Mapper<TDna, TSpec>::coordsAsVector()
 {
     unsigned strand;
-    std::vector<std::vector<std::vector<std::tuple<uint32_t, uint32_t, uint32_t>>>> ret;
+    std::vector<std::pair<bool, std::vector<std::vector<std::tuple<uint32_t, uint32_t, uint32_t>>>>> results;
     
-    ret.resize(length(cordSet));
-    for (unsigned k = 0; k < length(cordSet); k++)
+    results.resize(length(cordSet));
+    for (unsigned read = 0; read < length(cordSet); read++)
     {
-        if (!empty(cordSet))
+        if (!empty(cordSet[read]))
         {
-            unsigned j = 1;
-            while (j < length(cordSet[k]))
+            results[read].first = _DefaultCord.getCordStrand(back(cordSet[read]));
+            unsigned index = 1;
+            while (index < length(cordSet[read]))
             {
-                std::cerr << "j_start:" << j << std::endl;
+                //std::cerr << "index_start:" << index << std::endl;
                 std::vector<std::tuple<uint32_t, uint32_t, uint32_t>> coordinates;
-                while (!_DefaultHit.isBlockEnd(cordSet[k][j]))
+                while (!_DefaultHit.isBlockEnd(cordSet[read][index]))
                 {
-                    coordinates.push_back({_DefaultCord.getCordY(cordSet[k][j]), 
-                                           _getSA_i1(_DefaultCord.getCordX(cordSet[k][j])), 
-                                           _getSA_i2(_DefaultCord.getCordX(cordSet[k][j]))});
-                    // if (_DefaultHit.isBlockEnd(cordSet[k][j]) && j < length(cordSet[k]) - 1)
-                    // {
-                    //     of << "\n" << k << " th Strand " << strand << " length " << length(reads()[k]) << "\nlength of cords " << "\n";
-                    // }
-                    j++;
+                    coordinates.push_back({_DefaultCord.getCordY(cordSet[read][index]), 
+                                            _getSA_i1(_DefaultCord.getCordX(cordSet[read][index])), 
+                                            _getSA_i2(_DefaultCord.getCordX(cordSet[read][index]))});
+                    index++;
                 }
-                coordinates.push_back({_DefaultCord.getCordY(cordSet[k][j]), 
-                       _getSA_i1(_DefaultCord.getCordX(cordSet[k][j])), 
-                       _getSA_i2(_DefaultCord.getCordX(cordSet[k][j]))});
-                j++;
-                ret[k].push_back(std::move(coordinates));
-                std::cerr << "j_end:" << j << std::endl;
+                coordinates.push_back({_DefaultCord.getCordY(cordSet[read][index]), 
+                        _getSA_i1(_DefaultCord.getCordX(cordSet[read][index])), 
+                        _getSA_i2(_DefaultCord.getCordX(cordSet[read][index]))});
+                index++;
+                results[read].second.push_back(std::move(coordinates));
+                //std::cerr << "index_end:" << index << std::endl;
             }
-        }
+        }        
     }
-    return ret;
+    return results;
 }
 
 template <typename TDna, typename TSpec>
