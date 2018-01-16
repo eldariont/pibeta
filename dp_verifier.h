@@ -122,7 +122,11 @@ computeGrid(PacBioBandGenerator & bandGenerator,
            Exact{});
     for (auto & block : grid)
     {
-        bandGenerator._gridBlocks[block.first * bandGenerator._colOffset + block.second] = true;
+        // check that current block is not outside of matrix
+        if (firstBlock.second <= block.second <= lastBlock.second && firstBlock.first <= block.first <= lastBlock.first)
+        {
+            bandGenerator._gridBlocks[block.first * bandGenerator._colOffset + block.second] = true;
+        }        
     }
 
     //TODO(rrahn): Second phase: Identify and connect lose ends with parallelogram
