@@ -72,6 +72,130 @@ void computeGrid(DPStaticBandGenerator & bandGenerator,
 struct PacBioBandGenerator : public DPStaticBandGenerator
 {};
 
+
+void connectInGrid(PacBioBandGenerator & bandGenerator, std::pair<uint32_t, uint32_t> lowerRightBlock, std::pair<uint32_t, uint32_t> upperLeftBlock)
+{
+    std::cerr << "Connect " << upperLeftBlock.first << "," << upperLeftBlock.second << " with " << lowerRightBlock.first << "," << lowerRightBlock.second << std::endl;
+    for (int row = upperLeftBlock.first; row <= lowerRightBlock.first; row++)
+    {
+        for (int col = upperLeftBlock.second; col <= lowerRightBlock.second; col++)
+        {
+            bandGenerator._gridBlocks[row * bandGenerator._colOffset + col] = true;
+        }
+    }
+}
+
+
+bool checkProperGrid(PacBioBandGenerator & bandGenerator)
+{
+    int cols = bandGenerator._colOffset;
+    int rows = length(bandGenerator._gridBlocks) / cols;
+    std::cerr << "Grid has " << rows << " rows and " << cols << " cols." << std::endl;
+
+    bool unconnectedBlocksFound = false;
+
+    for (int row = 0; row < rows; row++)
+    {
+        for (int col = 0; col < cols; col++)
+        {
+            if (bandGenerator._gridBlocks[row * bandGenerator._colOffset + col] == true)
+            {
+                // first, find out whether current block is connected to block above or left
+                bool connected = true;
+                if (row == 0 and col == 0)
+                {
+                    ;
+                }
+                else if (col == 0)
+                {
+                    if (bandGenerator._gridBlocks[(row-1) * bandGenerator._colOffset + col] == false)
+                    {
+                        connected = false;
+                    }
+                }
+                else if (row == 0)
+                {
+                    if (bandGenerator._gridBlocks[row * bandGenerator._colOffset + (col - 1)] == false)
+                    {
+                        connected = false;
+                    }
+                }
+                // else
+                else{
+                    if (bandGenerator._gridBlocks[(row-1) * bandGenerator._colOffset + col] == false && bandGenerator._gridBlocks[row * bandGenerator._colOffset + (col - 1)] == false)
+                    {
+                        connected = false;
+                    }
+                }
+
+                if (!connected)
+                {
+                    std::cerr << "Block " << row << "," << col << " is not connected. Try to connect.." << std::endl;
+                    unconnectedBlocksFound = true;
+                }
+
+                // now, try to connect unconnected block
+                int i = -1;
+                while (!connected && i >= std::min(-col, -row))
+                {
+                    int r = row + i;
+                    if (r >= 0)
+                    {
+                        for (int c = col; c > col + i && c >= 0; c--)
+                        {
+                            if (bandGenerator._gridBlocks[(r) * bandGenerator._colOffset + c])
+                            {
+                                connectInGrid(bandGenerator, std::make_pair(row, col), std::make_pair(r, c));
+                                connected = true;
+                                break;
+                            }
+                        }
+                    }                        
+                    if (!connected)
+                    {
+                        int r = row + i;
+                        int c = col + i;
+                        if (r >= 0 && c >= 0)
+                        {
+                            if (bandGenerator._gridBlocks[(r) * bandGenerator._colOffset + c])
+                            {
+                                connectInGrid(bandGenerator, std::make_pair(row, col), std::make_pair(r, c));
+                                connected = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!connected)
+                    {
+                        int c = col + i;
+                        if (c >= 0)
+                        {
+                            for (int r = row; r > row + i && r >= 0; r--)
+                            {
+                                if (bandGenerator._gridBlocks[(r) * bandGenerator._colOffset + c])
+                                {
+                                    connectInGrid(bandGenerator, std::make_pair(row, col), std::make_pair(r, c));
+                                    connected = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    i -= 1;
+                }
+
+                // if no connection could be made, connect with upper left corner of matrix
+                if (!connected)
+                {
+                    connectInGrid(bandGenerator, std::make_pair(row, col), std::make_pair(0, 0));
+                }
+            }
+        }
+    }
+    return !unconnectedBlocksFound;
+}
+
+
 //TODO(rrahn): Model band generation.
 template <typename TCoordinates>
 inline void
@@ -115,11 +239,14 @@ computeGrid(PacBioBandGenerator & bandGenerator,
     auto & lastBlock  = back(grid);
     auto & firstBlock = front(grid);
 
+    // initialize matrix of blocks to process
     bandGenerator._colOffset = (lastBlock.second - firstBlock.second + 1);
     resize(bandGenerator._gridBlocks,
-           (lastBlock.first - firstBlock.first + 1) * bandGenerator._colOffset,
-           false,
-           Exact{});
+        (lastBlock.first - firstBlock.first + 1) * bandGenerator._colOffset,
+        false,
+        Exact{});
+    
+    // fill in blocks that have to be processed
     for (auto & block : grid)
     {
         // check that current block is not outside of matrix
@@ -129,7 +256,9 @@ computeGrid(PacBioBandGenerator & bandGenerator,
         }        
     }
 
-    //TODO(rrahn): Second phase: Identify and connect lose ends with parallelogram
+    // make sure that all blocks are connected
+    checkProperGrid(bandGenerator);
+    SEQAN_ASSERT(checkProperGrid(bandGenerator));
 }
 
 struct DPVerifierTraits
