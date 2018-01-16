@@ -82,8 +82,23 @@ computeGrid(PacBioBandGenerator & bandGenerator,
 {
     std::cerr << "Strand: " << std::boolalpha << strand << std::endl;
     std::vector<std::pair<uint32_t, uint32_t>> grid;
-    uint32_t genome_start = std::get<2>(readMappingCoordinates[0]);
-    uint32_t read_start = std::get<0>(readMappingCoordinates[0]);
+    
+    // find lowest position in read and genome
+    unsigned genome_start = -1;
+    unsigned read_start = -1;
+    for (auto && tup : readMappingCoordinates)
+    {
+        if (std::get<2>(tup) < genome_start)
+        {
+            genome_start = std::get<2>(tup);
+        }
+        if (std::get<0>(tup) < read_start)
+        {
+            read_start = std::get<0>(tup);
+        }
+    }
+
+    // compute grid indices for each block
     for (auto && tup : readMappingCoordinates)
     {
         auto x_pos = std::get<2>(tup) - genome_start;
