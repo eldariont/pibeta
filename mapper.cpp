@@ -129,8 +129,6 @@ int main(int argc, char const ** argv)
 
     for (int read = 0; read < length(read_map_coordinates); ++read)
     {
-        if (read == 182)
-        {
         std::cout << "\n\n#### Read " << read << "\n";
         for (int mapping = 0; mapping < length(read_map_coordinates[read]); ++mapping)
         {
@@ -142,26 +140,6 @@ int main(int argc, char const ** argv)
             // Now submit an alignment with the block generation as function?
             DPSettings<decltype(scoreScheme), DPVerifierTraits> dpSettings{scoreScheme};
             dpSettings.bandScheme = bandGenerator;
-
-            for (size_t rowIdx = 0; rowIdx < bandGenerator._colOffset; ++rowIdx)
-            {
-                unsigned isDisconnected = 0;
-                bool lastVal = false;
-                for (size_t colIdx = 0;
-                     colIdx < (length(bandGenerator._gridBlocks)/bandGenerator._colOffset);
-                     ++colIdx)
-                {
-                    bool val = bandGenerator._gridBlocks[colIdx * bandGenerator._colOffset + rowIdx];
-                    if (val != lastVal)
-                        ++isDisconnected;
-                    std::cout << std::boolalpha << val << "\t\t";
-                    lastVal = val;
-                }
-//                    if (isDisconnected > 2)
-//                        std::cout << "XXXXXX";
-                std::cout << "\n";
-            }
-        }
         }
     }
 
